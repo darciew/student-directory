@@ -1,24 +1,5 @@
 @students = [] # an empty array accessible to all methods
 
-def input_students
-  puts "Please enter the names of the students"
-  puts "To finish, just hit return twice"
-  name = gets.chomp
-  while !name.empty? do
-    @students << {name: name, cohort: :november}
-    puts "Now we have #{@students.count} students"
-    name = gets.chomp
-  end
-end
-
-def interactive_menu
-  loop do
-    print_menu
-    show_students
-    process(gets.chomp)
-  end
-end
-
 def print_menu
   puts "1. Input the students"
   puts "2. Show the students"
@@ -27,10 +8,12 @@ def print_menu
   puts "9. Exit"
 end
 
-def show_students
-  print_header
-  print_students_list
-  print_footer
+def interactive_menu
+  loop do
+    print_menu
+    show_students
+    process(STDIN.gets.chomp)
+  end
 end
 
 def process(selection)
@@ -50,14 +33,33 @@ def process(selection)
   end
 end
 
+def input_students
+  puts "Please enter the names of the students"
+  puts "To finish, just hit return twice"
+  name = STDIN.gets.chomp
+  while !name.empty? do
+    @students << {name: name, cohort: :november}
+    puts "Now we have #{@students.count} students"
+    name = gets.chomp
+  end
+end
+
+def show_students
+  print_header
+  print(students)
+  print_footer
+end
+
 def print_header
   puts "The students of Makers Academy"
   puts "-------------"
 end
 
-def print_students_list
-  @students.each do |student|
+def print(students)
+num_of_students = 0
+  until num_of_students == @students.length do
     puts "#{student[:name]} (#{student[:cohort]} cohort)"
+    num_of_students += 1
   end
 end
 
@@ -75,8 +77,8 @@ def save_students
   file.close
 end
 
-def load_students
-  file = File.open("students.csv", "r") # we open the file for reading "r"
+def load_students(filename = "students.csv")
+  file = File.open(filename, "r") # we open the file for reading "r"
   file.readlines.each do |line| # we read all lines into an array and iterate over it.
     name, cohort = line.chomp.split(',') # parallel assignment of name and cohort. We split the lines at the comma (this will give us an array with two elements - e.g. [Eddy Evil, november]) and assign it to the name and cohort variables.
     @students << {name: name, cohort: cohort.to_sym} #  we create a new hash and put it into the list of students
@@ -84,4 +86,17 @@ def load_students
   file.close
 end
 
+def try_load_students
+  filename = ARGV.first # load the data if the file is given to the script as an argument
+  return if filename.nil? # see if the argument is given. If not, we just proceed as before and don't do anything.
+  if File.exists?(filename)
+    load_students(filename)
+    puts "Loaded #{@students.count} from #{filename}"
+  else
+    puts "Sorry, #{filename} doesn't exist."
+    exit # quits the program
+  end
+end
+
+try_load_students
 interactive_menu
