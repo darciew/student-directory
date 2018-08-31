@@ -46,7 +46,7 @@ end
 
 def show_students
   print_header
-  print(students)
+  print_student_list
   print_footer
 end
 
@@ -55,11 +55,9 @@ def print_header
   puts "-------------"
 end
 
-def print(students)
-num_of_students = 0
-  until num_of_students == @students.length do
+def print_student_list
+  @students.each do |student|
     puts "#{student[:name]} (#{student[:cohort]} cohort)"
-    num_of_students += 1
   end
 end
 
